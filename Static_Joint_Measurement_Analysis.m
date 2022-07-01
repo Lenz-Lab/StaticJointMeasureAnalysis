@@ -1,33 +1,63 @@
-%% Joint Measurement Analysis
-%
-%
-% Created by: Rich Lisonbee
-% Date: 4/19/2022
-%
-% Modified By: Andrew Peterson
-% Version: 2
-% Date: 5/23/2022
-% Notes: Directory and pathing for GitHub users
+%% Static Joint Measurement Analysis
+% Calculates coverage area, joint space distance and congruence index between two
+% different bones at correspondence particles on a particular bone surface
+% throughout a dynamic activity.
 
-%%
-clear, clc, close all
+% Modified By: Andrew Peterson
+% Date: 7/1/2022
+
+%% Required Files and Input
+% This script requires a folder structure and files in order to process the
+% data appropriately.
+
+joint_names = {'Subtalar'};
+joint = 1;
+bone_names = {'Talus','Calcaneus'};
+% Please update bone_names and joint_names variable with the names of the bones and joint of
+% interest. Spelling is very important and must be consistent in all file
+% names!
+
+% Folder Architecture:
+% Main Directory -> (folder containing each of the group folders)
+%     Folders:
+%     Group_A
+%     Group_(...)
+%     Group_(n-1) -> (contains each of the subject folders within that group)
+%         Folders:
+%         Subject_01
+%         Subject_(...)
+%         (Name)_(m-1) -> (contains files for that subject)
+%             Files:
+%             (Name).local.particles        (exported from ShapeWorks)
+%             (Bone_Name_01)_groomed.vtk    (exported from ShapeWorks)
+%             (Bone_Name_01).stl            (input bone model into ShapeWorks)
+%             (Bone_Name_02).stl            ('opposing' bone model)
+%             (Name).xlsx                   (spreadsheet with gait events)
+%             (Bone_Name_01).txt            (text file with kinematics for bone #1)
+%             (Bone_Name_02).txt            (text file with kinematics for bone #2)
+
+% Files:
+% (Name).xlsx       -> [heelstrike frame, first frame tracked, last frame, tracked, toe off frame]
+%   This file is used for normalizing the events to percentage of stance
+%
+% (Bone_Name_#).txt -> [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 0, 0, 0, 0, 0, 1] (each line is a frame)
+%   This file contains the 4x4 transformation matrices. The above identity
+%   matrix example shows how for one frame the matrix is changed for every
+%   four deliminated values are a row of the transformation matrix.
+%   This will need to be created for each of the bones of interest.
+
+
+
+% Please read the standard operating procedure (SOP) included in the
+% .github repository.
+%% Clean Slate
+clc, close all, clearvars -except bone_names
 delete(gcp('nocreate'))
 pool = parpool([1 100]);
 clc
 
-%% Bone Input Names
-% bone_names = {'Calcaneus','Talus','Cuboid','Navicular'};
-joint_names = {'Subtalar','Talonavicular','Calcaneocuboid','Navicular_MedialCuneiform','Navicular_Intermediate_Cuneiform','Navicular_Lateral_Cuneiform'};
-
-%% Select Folders
-% domain_num  = inputdlg({'Enter number of study groups:'},'How many cohorts?',[1 50],{'1'});
-% ssm_num     = inputdlg({'Enter number of input shape models:'},'How many input SSM?',[1 50],{'1'});
-subjects = [];
-
 %% Loading Data
 fprintf('Loading Data:\n')
-
-% for n = 1:str2double(domain_num)
 
 fldr_name = uigetdir;
 addpath(fldr_name)
@@ -41,32 +71,11 @@ for k = 3:length(D)
     m = m + 1;
 end
 
-
 temp = strsplit(fldr_name,'\');
 subj_groups.(string(temp(end))).SubjectList = pulled_files;
-for n = 1:length(joint_names)
-    if any(string(temp) == string(joint_names(n)))
-        joint = n;
-    end
-end
-joint = 4;
-if joint == 1
-    bone_names = {'Talus','Calcaneus'};
-elseif joint == 2
-    bone_names = {'Talus','Navicular'};
-elseif joint == 3
-    bone_names = {'Calcaneus','Cuboid'};
-elseif joint == 4
-    bone_names = {'Navicular','MedialCuneiform'};
-elseif joint == 5
-    bone_names = {'Navicular','IntermediateCuneiform'};
-elseif joint == 6
-    bone_names = {'Navicular','LateralCuneiform'};
-end
 
 %% Load Data for Each Subject
 for m = 1:length(pulled_files)
-% for m = 1:1
     %%
     fprintf('   %s\n',string(pulled_files(m)))
     addpath(sprintf('%s\\%s\\',string(fldr_name),string(pulled_files(m))))
@@ -75,9 +84,7 @@ for m = 1:length(pulled_files)
     S = [];
     S = dir(fullfile(sprintf('%s\\%s\\',string(fldr_name),string(pulled_files(m))),'*.stl'));
     for b = 1:length(bone_names)
-%         c = b;
         for c = 1:length(S)
-%             b = c;
             temp_under = split(S(c).name,'_');
             temp_dot = split(temp_under(end),'.');
             temp = [temp_under(1:end-1); temp_dot];
@@ -99,16 +106,11 @@ for m = 1:length(pulled_files)
                 % pairing the .stl points with the CP points in later
                 % steps. The .ply files from ShapeWorks have a
                 % different mesh than the input .stl files.
-                if strfind('Right',string(temp(d))) == 1
+                side_check = strsplit(string(temp(d)),'.');
+                if isempty(strfind('Right',side_check(1))) == 0 || isempty(strfind('right',side_check(1))) == 0 || isempty(strfind('R',side_check(1))) == 0
                     Data.(string(pulled_files(m))).Side = 'Right';
                 end
-                if strfind('R',string(temp(d))) == 1
-                    Data.(string(pulled_files(m))).Side = 'Right';
-                end
-                if strfind('Left',string(temp(d))) == 1
-                    Data.(string(pulled_files(m))).Side = 'Left';
-                end
-                if strfind('L',string(temp(d))) == 1
+                if isempty(strfind('Left',side_check(1))) == 0  || isempty(strfind('left',side_check(1))) == 0 || isempty(strfind('L',side_check(1))) == 0
                     Data.(string(pulled_files(m))).Side = 'Left';
                 end
             end
@@ -136,13 +138,13 @@ for m = 1:length(pulled_files)
                 temp_check = strfind(string(bone_names(b)),string(temp(d)));
                 if  temp_check == 1
                     temp_VTK = [];
-                    temp_VTK = LoadVTKFile(P(c).name);
+                    temp_VTK = LoadDataFile(P(c).name);
                     Data.(string(pulled_files(m))).(string(bone_names(b))).GroomedVTK.Location   = temp_VTK;
                 end
             end
         end
     end
-    
+
     %% Load the Correspondence Particles (CP) from ShapeWorks
     C = [];
     C = dir(fullfile(sprintf('%s\\%s\\',string(fldr_name),string(pulled_files(m))),'*.particles'));
@@ -157,28 +159,28 @@ for m = 1:length(pulled_files)
                 if  temp_check == 1
                     temp_cp = [];
                     temp_cp = importdata(C(c).name);
-                    Data.(string(pulled_files(m))).(string(bone_names(b))).CP     = temp_cp;
+                    Data.(string(pulled_files(m))).(string(bone_names(b))).CP = temp_cp;
                 end
             end
         end
     end
 end
 
+subjects = [];
 subjects = [subjects, pulled_files];
 clear pulled_files
 
 %% Identify Indices on Bones from SSM Local Particles
-% fprintf('Local Particles -> Bone Indices\n')
 g = fieldnames(Data);
 for subj_count = 1:length(g)
     for bone_count = 1:length(bone_names)
         if isfield(Data.(string(subjects(subj_count))).(string(bone_names(bone_count))),'CP') == 1
             i_pair = [];
-            tol = 5;
+            tol = 2;
             CP = [];
             CP = Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).CP;
             q = [];
-            q = Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).GroomedVTK.Location';
+            q = Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).GroomedVTK.Location.Points';
             p = [];
             p = Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).Points;
 
@@ -199,8 +201,8 @@ for subj_count = 1:length(g)
 
             R = [];
             T = [];
-            % calculate the rotations and translation matrices
-            [R,T] = icp(q,p,100,'Matching','kDtree');
+            % Calculate the rotations and translation matrices
+            [R,T] = icp(q,p,200,'Matching','kDtree');
 
             P = [];
             P = (R*p + repmat(T,1,length(p)))';
@@ -220,12 +222,9 @@ for subj_count = 1:length(g)
             % particles and save to Data structure
             for r = 1:length(CP(:,1))
                 ROI = find(P(:,1) >= CP(r,1)-tol & P(:,1) <= CP(r,1)+tol & P(:,2) >= CP(r,2)-tol & P(:,2) <= CP(r,2)+tol & P(:,3) >= CP(r,3)-tol & P(:,3) <= CP(r,3)+tol);
-
                 found_dist = pdist2(single(CP(r,:)),single(P(ROI,:)));
                 min_dist = (ROI(find(found_dist == min(found_dist))));
-
-                    i_pair(r,:) = [r min_dist];
-
+                i_pair(r,:) = [r min_dist];
                 clear found_dist min_dist ROI
             end
             Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).CP_Bone = i_pair;
@@ -242,10 +241,8 @@ for subj_count = 1:length(g)
     end
 end
 
-%% Bone Transformations via Kinematics
-% fprintf('Bone Transformations via Kinematics:\n')
+%% Bone Transformations
 for subj_count = 1:length(g)
-% for subj_count = 1:13
     frame_count = 1;
     clear temp i_pair temp_STL
     for bone_count = 1:length(bone_names)
@@ -268,30 +265,28 @@ for subj_count = 1:length(g)
 
     %% Find if intersecting and calculate surface area
     for bone_count = 1:length(bone_names)
-
         if isfield(Data.(string(subjects(subj_count))).(string(bone_names(bone_count))),'CP_Bone') == 1
             temp_center = incenter(temp_STL.(string(bone_names(bone_count))));
             temp_normal = faceNormal(temp_STL.(string(bone_names(bone_count))));
 
             temp_n = [];
             temp_d = [];
+
             % https://www.mathworks.com/help/matlab/ref/triangulation.facenormal.html
             % TriangleRayIntersection (orig, dir, vert0, vert1, vert2, varargin)
 
-           
             parfor (norm_check = 1:length(temp_center),pool)
                 [temp_int] = TriangleRayIntersection(temp_center(norm_check,:),temp_normal(norm_check,:),temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,1),:),temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,2),:),temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,3),:));
                 if isempty(find(temp_int == 1)) == 0
-                    % temp_n(end+1,:) = norm_check;
                     temp_n(norm_check,:) = 1;
                 end
-                % disp(string(norm_check))
             end
 
             temp_n = find(temp_n == 1);
             pool.IdleTimeout = 30; % resets pool timeout to 30 minutes
 
-            % Faces found that intersect opposing surface
+            %% Find the indices of the points and faces
+            % tri_found -> faces found that intersect opposing surface
             tri_found = [];
             for tri_check = 1:length(temp_n)
                 t = [];
@@ -303,9 +298,8 @@ for subj_count = 1:length(g)
 
             tri_found = unique(tri_found);
 
-            % PUT HERE THE COVERAGE AREA CALCULATIONS?
-            % https://www.mathworks.com/matlabcentral/answers/271797-surface-area-of-a-3d-surface
-
+            % tri_point -> index of 'identified nodes'
+            % tri_cp    -> index of correspondex particle
             tri_cp = [];
             tri_points = [];
             for n = 1:length(tri_found)
@@ -316,6 +310,7 @@ for subj_count = 1:length(g)
                 end
             end
 
+            %% Calculate Coverage Surface Area
             for n = 1:length(temp_n)
                 temp_tri = temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(temp_n(n),:);
                 P1 = temp_STL.(string(bone_names(bone_with_CP))).Points(temp_tri(:,1),:);
@@ -328,76 +323,46 @@ for subj_count = 1:length(g)
                 clear temp_tri
             end
 
-            % Data.(string(subjects(subj_count))).CoverageArea.(sprintf('F_%d',frame_count)) = sum(area_tri);
             Data.(string(subjects(subj_count))).CoverageArea.(string(bone_names(bone_with_CP))) = sum(area_tri);
 
-            %             TR.vertices =    temp_STL.(string(bone_names(bone_with_CP))).Points;
-            %             TR.faces    =    temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(temp_n,:);
-            %
-            %             C = temp_STL.(string(bone_names(bone_with_CP))).Points;
-            %             figure()
-            %             patch(TR,'FaceColor', [0.85 0.85 0.85], ...
-            %             'EdgeColor','none',...
-            %             'FaceLighting','gouraud',...
-            %             'AmbientStrength', 0.15);
-            %             camlight(0,45);
-            %             material('dull');
-            %             hold on
-            %             plot3(C(tri_points,1),C(tri_points,2),C(tri_points,3),'or','markersize',5)
-            %             hold on
-            %             plot3(C(iso_check,1),C(iso_check,2),C(iso_check,3),'.b','markersize',5)
-            %             axis equal
+            % Troubleshooting
+            % TR.vertices =    temp_STL.(string(bone_names(bone_with_CP))).Points;
+            % TR.faces    =    temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(temp_n,:);
 
-            % Now that the .stl nodes and their paired CP nodes are
-            % identified within the coverage region we can store them in
-            % the Data structure for future use.
-            %             Frame.(string(bone_names(bone_count))).(sprintf('F_%d',frame_count')).CoveragePoints = [tri_points tri_cp];
+            % C = temp_STL.(string(bone_names(bone_with_CP))).Points;
+            % figure()
+            % patch(TR,'FaceColor', [0.85 0.85 0.85], ...
+            % 'EdgeColor','none',...
+            %   'FaceLighting','gouraud',...
+            %   'AmbientStrength', 0.15);
+            % camlight(0,45);
+            % material('dull');
+            % hold on
+            % plot3(C(tri_points,1),C(tri_points,2),C(tri_points,3),'or','markersize',5)
+            % hold on
+            % plot3(C(iso_check,1),C(iso_check,2),C(iso_check,3),'.b','markersize',5)
+            % axis equal
+
         else
-
+            %% Calculate Coverage Surface Area on Opposing Bone
             temp_center = incenter(temp_STL.(string(bone_names(bone_no_CP))));
             temp_normal = faceNormal(temp_STL.(string(bone_names(bone_no_CP))));
 
             temp_n = [];
             temp_d = [];
+
             % https://www.mathworks.com/help/matlab/ref/triangulation.facenormal.html
             % TriangleRayIntersection (orig, dir, vert0, vert1, vert2, varargin)
 
             parfor (norm_check = 1:length(temp_center),pool)
                 [temp_int] = TriangleRayIntersection(temp_center(norm_check,:),temp_normal(norm_check,:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,1),:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,2),:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,3),:));
                 if isempty(find(temp_int == 1)) == 0
-                    % temp_n(end+1,:) = norm_check;
                     temp_n(norm_check,:) = 1;
                 end
-                % disp(string(norm_check))
             end
 
             temp_n = find(temp_n == 1);
             pool.IdleTimeout = 30; % resets pool timeout to 30 minutes
-
-            %             % Faces found that intersect opposing surface
-            %             tri_found = [];
-            %             for tri_check = 1:length(temp_n)
-            %                 t = [];
-            %                 t = temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(temp_n(tri_check),:);
-            %                 for tri_fill = 1:length(t)
-            %                     tri_found(end+1,:) = t(tri_fill);
-            %                 end
-            %             end
-            %
-            %             tri_found = unique(tri_found);
-
-            % PUT HERE THE COVERAGE AREA CALCULATIONS?
-            % https://www.mathworks.com/matlabcentral/answers/271797-surface-area-of-a-3d-surface
-
-            %             tri_cp = [];
-            %             tri_points = [];
-            %             for n = 1:length(tri_found)
-            %                 temp = find(tri_found(n) == Data.(string(subjects(subj_count))).(string(bone_names(bone_no_CP))).CP_Bone(:,2));
-            %                 if isempty(temp) == 0
-            %                     tri_points(end+1,:)   = Data.(string(subjects(subj_count))).(string(bone_names(bone_no_CP))).CP_Bone(temp,2);
-            %                     tri_cp(end+1,:)       = temp; %Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).CP_Bone(temp,1); Basically same thing since it is the index...
-            %                 end
-            %             end
 
             for n = 1:length(temp_n)
                 temp_tri = temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(temp_n(n),:);
@@ -411,7 +376,6 @@ for subj_count = 1:length(g)
                 clear temp_tri
             end
 
-            % Data.(string(subjects(subj_count))).CoverageArea.(sprintf('F_%d',frame_count)) = sum(area_tri);
             Data.(string(subjects(subj_count))).CoverageArea.(string(bone_names(bone_no_CP))) = sum(area_tri);
         end
     end
@@ -422,18 +386,12 @@ for subj_count = 1:length(g)
 
     A_A = temp_STL.(string(bone_names(bone_no_CP))).Points;
     C_C = temp_STL.(string(bone_names(bone_with_CP))).Points;
-    
-    figure()
-    plot3(A_A(:,1),A_A(:,2),A_A(:,3),'.k')
-    hold on
-    plot3(C_C(tri_points,1),C_C(tri_points,2),C_C(tri_points,3),'.g')
-    axis equal
 
     % Pair nodes with CP and calculate euclidean distance
-    clear temp i_surf
+    clear temp i_surf ROI
     for h = 1:length(tri_points(:,1))
         % Kept the line below for legacy
-        %     ROI = find(temp_STL.(string(bone_names(bone_no_CP))).Points(:,1) >= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),1)-tol & temp_STL.(string(bone_names(bone_no_CP))).Points(:,1) <= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),1)+tol & temp_STL.(string(bone_names(bone_no_CP))).Points(:,2) >= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),2)-tol & temp_STL.(string(bone_names(bone_no_CP))).Points(:,2) <= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),2)+tol & temp_STL.(string(bone_names(bone_no_CP))).Points(:,3) >= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),3)-tol & temp_STL.(string(bone_names(bone_no_CP))).Points(:,3) <= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),3)+tol);
+        % ROI = find(temp_STL.(string(bone_names(bone_no_CP))).Points(:,1) >= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),1)-tol & temp_STL.(string(bone_names(bone_no_CP))).Points(:,1) <= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),1)+tol & temp_STL.(string(bone_names(bone_no_CP))).Points(:,2) >= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),2)-tol & temp_STL.(string(bone_names(bone_no_CP))).Points(:,2) <= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),2)+tol & temp_STL.(string(bone_names(bone_no_CP))).Points(:,3) >= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),3)-tol & temp_STL.(string(bone_names(bone_no_CP))).Points(:,3) <= temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points(h),3)+tol);
         ROI = find(A_A(:,1) >= C_C(tri_points(h),1)-tol & A_A(:,1) <= C_C(tri_points(h),1)+tol & A_A(:,2) >= C_C(tri_points(h),2)-tol & A_A(:,2) <= C_C(tri_points(h),2)+tol & A_A(:,3) >= C_C(tri_points(h),3)-tol & A_A(:,3) <= C_C(tri_points(h),3)+tol);
         if isempty(ROI) == 0
             parfor n = 1:length(ROI(:,1))
@@ -449,33 +407,35 @@ for subj_count = 1:length(g)
         clear temp tempp
     end
 
+    % Troubleshooting
+    % Figure with 'identified nodes' in black, opposing bone nodes in blue, and
+    % nodes making up the region of interest as green squares. Also will show
+    % the line between the 'identified nodes' and their paired opposing surface
+    % nodes with a green line.
 
-
-
-        B = temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points,:);
-        A = temp_STL.(string(bone_names(bone_no_CP))).Points;
-        C = temp_STL.(string(bone_names(bone_with_CP))).Points;
-        %
-        figure()
-        plot3(A(:,1),A(:,2),A(:,3),'.k')
-        hold on
-        plot3(B(:,1),B(:,2),B(:,3),'.b')
-        hold on
-        plot3(A(i_surf(:,1),1),A(i_surf(:,1),2),A(i_surf(:,1),3),'*r','markersize',10)
-        hold on
-            plot3(C(i_surf(:,2),1),C(i_surf(:,2),2),C(i_surf(:,2),3),'or','markersize',5)
-        hold on
-        for q = 1:length(i_surf(:,1))
-            plot3([A(i_surf(q,1),1);C(i_surf(q,2),1)],[A(i_surf(q,1),2);C(i_surf(q,2),2)],[A(i_surf(q,1),3);C(i_surf(q,2),3)],'g')
-            hold on
-        end
-        hold on
-        axis equal
-        % axis off
-
+    % A = temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points,:);
+    % B = temp_STL.(string(bone_names(bone_no_CP))).Points;
+    % C = temp_STL.(string(bone_names(bone_with_CP))).Points;
+    %
+    % figure()
+    % plot3(A(:,1),A(:,2),A(:,3),'.k')
+    % hold on
+    % plot3(B(:,1),B(:,2),B(:,3),'.b')
+    % hold on
+    % % plot3(C(ROI_frame,1),C(ROI_frame,2),C(ROI_frame,3),'sr') % ROI is from line 324
+    % hold on
+    % for q = 1:length(i_surf(:,1))
+    %     plot3([C(i_surf(q,2),1);B(i_surf(q,3),1)],[C(i_surf(q,2),2);B(i_surf(q,3),2)],[C(i_surf(q,2),3);B(i_surf(q,3),3)],'g')
+    %     hold on
+    % end
+    % % hold on
+    % axis equal
+    % axis off
 
     %% Pull Mean and Gaussian Curvature Data
-    clear mean1 gaus1 mean2 gaus2
+    % These next few sections calculate the congruence index between each
+    % of the paired nodes following the methods described by Ateshian et. al.
+    % (CITE)
     mean1 = Data.(string(subjects(subj_count))).(string(bone_names(bone_no_CP))).MeanCurve(i_surf(:,1));
     gaus1 = Data.(string(subjects(subj_count))).(string(bone_names(bone_no_CP))).GaussianCurve(i_surf(:,1));
 
@@ -537,6 +497,10 @@ for subj_count = 1:length(g)
 end
 
 %% Save Data to .xls file
+% An .xlsx file with distance (mm) and congruence index (mm^-1) values at 
+% each correspondence particle and node, and the coverage area (mm^2) on
+% each bone. Each subject is given their own sheet.
+% A .mat file is also generated with similar information.
 for n = 1:subj_count
     xlfilename = string(strcat(fldr_name,'\Joint_Measurements_',joint_names(joint),'.xlsx'));
     writematrix(string(joint_names(joint)),xlfilename,'Sheet',string(subjects(n)),'Range','A1');
@@ -548,7 +512,5 @@ for n = 1:subj_count
     SaveData.Data.(string(subjects(n))) = Data.(string(subjects(n)));
     save(string(strcat(fldr_name,'\',joint_names(joint),'_Joint_Measurement_SaveData.mat')),'-struct','SaveData')
 end
-
-
 
 delete(gcp('nocreate'))
