@@ -28,24 +28,11 @@ bone_names = {'Talus','Calcaneus'};
 %         Subject_(...)
 %         (Name)_(m-1) -> (contains files for that subject)
 %             Files:
-%             (Name).local.particles        (exported from ShapeWorks)
+%             (Bone_Name_01).local.particles        (exported from ShapeWorks)
 %             (Bone_Name_01)_groomed.vtk    (exported from ShapeWorks)
 %             (Bone_Name_01).stl            (input bone model into ShapeWorks)
+%             (Bone_Name_02)_groomed.vtk    (exported from ShapeWorks)
 %             (Bone_Name_02).stl            ('opposing' bone model)
-%             (Name).xlsx                   (spreadsheet with gait events)
-%             (Bone_Name_01).txt            (text file with kinematics for bone #1)
-%             (Bone_Name_02).txt            (text file with kinematics for bone #2)
-
-% Files:
-% (Name).xlsx       -> [heelstrike frame, first frame tracked, last frame, tracked, toe off frame]
-%   This file is used for normalizing the events to percentage of stance
-%
-% (Bone_Name_#).txt -> [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 0, 0, 0, 0, 0, 1] (each line is a frame)
-%   This file contains the 4x4 transformation matrices. The above identity
-%   matrix example shows how for one frame the matrix is changed for every
-%   four deliminated values are a row of the transformation matrix.
-%   This will need to be created for each of the bones of interest.
-
 
 
 % Please read the standard operating procedure (SOP) included in the
