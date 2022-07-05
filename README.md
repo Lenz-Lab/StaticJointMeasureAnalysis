@@ -1,47 +1,32 @@
 # StaticJointMeasureAnalysis
 
+Toolbox for conducting static joint measurements using statistical shape models.
+
 ## Description
 
-An in-depth paragraph about your project and overview of use.
+This toolbox allows the user to calculate joint coverage, distance and congruence index witin a joint. This code is designed to be ran after a statsitical shape model has been performed on the population of interest. The code finds the distance and/or congruence index value at each correspondance particle across the population. This can be done on an individual or from calculated models from SSM, such as the overall mean shape.
 
 ## Getting Started
 
 ### Dependencies
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
+* MATLAB R2020A or later
 
-### Installation
+### Executing program
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
-
-### Execution
-
-* How to run the program
-* Step-by-step bullets
-```
-code blocks for commands
-```
-
-## Help
-
-Any advise for common problems or issues.
-```
-command to run if program contains helper info
-```
+* Create a new folder in 'C:' drive called 'StaticJointMeasureAnalysis'
+* Execute the matlab script 'Static_Joint_Measurement_Analysis.m'
+* Change the "joint_names" variable to your joint name
+* Change the "bone_names" variable to your two bone names
+* Organize your folder with your models as described under the "Folder Architecture" heading
 
 ## Authors
 
-Contributors names and contact info
-
-* ex. Amy Lenz ([amylenz](https://github.com/amylenz), [@lenzetal](https://twitter.com/lenzetal), amy.lenz@utah.edu)
+* Andrew Peterson ([acpeterson96](https://github.com/acpeterson96), andrew.c.peterson@utah.edu)
+* Rich Lisonbee ([RichLisonbee](https://github.com/RichLisonbee), rich.lisonbee@utah.edu)
 
 ## Version History
 
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
 * 0.1
     * Initial Release
 
@@ -51,8 +36,9 @@ This project is licensed under the Creative Commons Zero License.
 
 ## Acknowledgments
 
-Inspiration, code snippets, people, etc.
-
-## References
-
-Cited work related to this project
+Inspiration, code snippets, etc.
+* [awesome-readme](https://github.com/matiassingers/awesome-readme)
+* [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
+* [dbader](https://github.com/dbader/readme-template)
+* [zenorocha](https://gist.github.com/zenorocha/4526327)
+* [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
