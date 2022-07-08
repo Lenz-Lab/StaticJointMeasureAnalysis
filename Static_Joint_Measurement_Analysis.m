@@ -10,9 +10,9 @@
 % This script requires a folder structure and files in order to process the
 % data appropriately.
 
-joint_names = {'Subtalar'};
+joint_names = {'Navicular Lateral Cuneiform'};
 joint = 1;
-bone_names = {'Talus','Calcaneus'};
+bone_names = {'Navicular','Lateral'};
 % Please update bone_names and joint_names variable with the names of the bones and joint of
 % interest. Spelling is very important and must be consistent in all file
 % names!
@@ -76,7 +76,8 @@ for m = 1:length(pulled_files)
             temp_dot = split(temp_under(end),'.');
             temp = [temp_under(1:end-1); temp_dot];
             for d = 1:length(temp)
-                temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                temp_check = any(string(bone_names(b)) == string(temp(d)));
+                % temp_check = strfind(string(bone_names(b)),string(temp(d)));
                 if  temp_check == 1
                     temp_stl = [];
                     temp_stl = stlread(S(c).name);
@@ -122,7 +123,8 @@ for m = 1:length(pulled_files)
             temp_dot = split(temp_under(end),'.');
             temp = [temp_under(1:end-1); temp_dot];
             for d = 1:length(temp)
-                temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                temp_check = any(string(bone_names(b)) == string(temp(d)));
+                % temp_check = strfind(string(bone_names(b)),string(temp(d)));
                 if  temp_check == 1
                     temp_VTK = [];
                     temp_VTK = LoadDataFile(P(c).name);
@@ -136,13 +138,13 @@ for m = 1:length(pulled_files)
     C = [];
     C = dir(fullfile(sprintf('%s\\%s\\',string(fldr_name),string(pulled_files(m))),'*.particles'));
     for b = 1:length(bone_names)
-        %     for b = 2
         for c = 1:length(C)
             temp_under = split(C(c).name,'_');
             temp_dot = split(temp_under(end),'.');
             temp = [temp_under(1:end-1); temp_dot];
             for d = 1:length(temp)
-                temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                % temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                temp_check = any(string(bone_names(b)) == string(temp(d)));
                 if  temp_check == 1
                     temp_cp = [];
                     temp_cp = importdata(C(c).name);
@@ -195,14 +197,14 @@ for subj_count = 1:length(g)
             P = (R*p + repmat(T,1,length(p)))';
 
             % Troubleshooting check for proper alignment
-            %             figure()
-            %             plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
-            %             %  hold on
-            %             % plot3(p(1,:),p(2,:),p(3,:),'ob')
-            %             hold on
-            %             plot3(P(:,1),P(:,2),P(:,3),'*r')
-            %             hold on
-            %             axis equal
+%                         figure()
+%                         plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
+%                          hold on
+%                         plot3(p(1,:),p(2,:),p(3,:),'ob')
+%                         hold on
+%                         plot3(P(:,1),P(:,2),P(:,3),'*r')
+%                         hold on
+%                         axis equal
 
             %% Identify Nodes and CP
             % Find the .stl nodes and their respective correspondence
@@ -217,13 +219,13 @@ for subj_count = 1:length(g)
             Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).CP_Bone = i_pair;
 
             % Troubleshooting check for proper pairing
-            %             c = 1000;
-            %             figure()
-            %             plot3(CP(i_pair(:,1),1),CP(i_pair(:,1),2),CP(i_pair(:,1),3),'.k')
-            %             hold on
-            %             plot3(CP(i_pair(c,1),1),CP(i_pair(c,1),2),CP(i_pair(c,1),3),'*r')
-            %             hold on
-            %             axis equal
+%                         c = 1000;
+%                         figure()
+%                         plot3(CP(i_pair(:,1),1),CP(i_pair(:,1),2),CP(i_pair(:,1),3),'.k')
+%                         hold on
+%                         plot3(CP(i_pair(c,1),1),CP(i_pair(c,1),2),CP(i_pair(c,1),3),'*r')
+%                         hold on
+%                         axis equal
         end
     end
 end
@@ -255,6 +257,15 @@ for subj_count = 1:length(g)
         if isfield(Data.(string(subjects(subj_count))).(string(bone_names(bone_count))),'CP_Bone') == 1
             temp_center = incenter(temp_STL.(string(bone_names(bone_count))));
             temp_normal = faceNormal(temp_STL.(string(bone_names(bone_count))));
+
+%             figure()
+%             plot3(temp_center(:,1),temp_center(:,2),temp_center(:,3),'.k')
+%             hold on
+%             plot3((temp_center(:,1) - temp_normal(:,1)),(temp_center(:,2) - temp_normal(:,2)),(temp_center(:,3) - temp_normal(:,3)),'--b')
+%             hold on
+%             plot3(temp_STL.(string(bone_names(bone_no_CP))).Points(:,1),temp_STL.(string(bone_names(bone_no_CP))).Points(:,2),temp_STL.(string(bone_names(bone_no_CP))).Points(:,3),'r.')
+%             plot3(temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,1),:),temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,2),:),temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,3),:),'.g')
+%             axis equal
 
             temp_n = [];
             temp_d = [];
@@ -313,22 +324,23 @@ for subj_count = 1:length(g)
             Data.(string(subjects(subj_count))).CoverageArea.(string(bone_names(bone_with_CP))) = sum(area_tri);
 
             % Troubleshooting
-            % TR.vertices =    temp_STL.(string(bone_names(bone_with_CP))).Points;
-            % TR.faces    =    temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(temp_n,:);
-
-            % C = temp_STL.(string(bone_names(bone_with_CP))).Points;
-            % figure()
-            % patch(TR,'FaceColor', [0.85 0.85 0.85], ...
-            % 'EdgeColor','none',...
-            %   'FaceLighting','gouraud',...
-            %   'AmbientStrength', 0.15);
-            % camlight(0,45);
-            % material('dull');
-            % hold on
-            % plot3(C(tri_points,1),C(tri_points,2),C(tri_points,3),'or','markersize',5)
-            % hold on
-            % plot3(C(iso_check,1),C(iso_check,2),C(iso_check,3),'.b','markersize',5)
-            % axis equal
+%             TR.vertices =    temp_STL.(string(bone_names(bone_with_CP))).Points;
+% %             TR.faces    =    temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(temp_n,:);
+%             TR.faces    =    temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList;
+%             C = temp_STL.(string(bone_names(bone_with_CP))).Points;
+%             figure()
+%             patch(TR,'FaceColor', [0.85 0.85 0.85], ...
+%             'EdgeColor','none',...
+%               'FaceLighting','gouraud',...
+%               'AmbientStrength', 0.15);
+%             camlight(0,45);
+%             material('dull');
+%             hold on
+% %             plot3(C(tri_points,1),C(tri_points,2),C(tri_points,3),'or','markersize',5)
+% plot3(C(tri_points,1),C(tri_points,2),C(tri_points,3),'or','markersize',5)
+%             hold on
+% %             plot3(C(iso_check,1),C(iso_check,2),C(iso_check,3),'.b','markersize',5)
+%             axis equal
 
         else
             %% Calculate Coverage Surface Area on Opposing Bone
@@ -373,6 +385,12 @@ for subj_count = 1:length(g)
 
     A_A = temp_STL.(string(bone_names(bone_no_CP))).Points;
     C_C = temp_STL.(string(bone_names(bone_with_CP))).Points;
+
+    figure()
+    plot3(A_A(:,1),A_A(:,2),A_A(:,3),'r.')
+    hold on 
+    plot3(C_C(:,1),C_C(:,2),C_C(:,3),'.b')
+    axis equal
 
     % Pair nodes with CP and calculate euclidean distance
     clear temp i_surf ROI
