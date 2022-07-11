@@ -10,9 +10,9 @@
 % This script requires a folder structure and files in order to process the
 % data appropriately.
 
-joint_names = {'Subtalar'};
+joint_names = {'Navicular_Intermediate_Cuneiform'};
 joint = 1;
-bone_names = {'Talus','Calcaneus'};
+bone_names = {'Navicular','Intermediate'};
 % Please update bone_names and joint_names variable with the names of the bones and joint of
 % interest. Spelling is very important and must be consistent in all file
 % names!
@@ -37,7 +37,7 @@ bone_names = {'Talus','Calcaneus'};
 % Please read the standard operating procedure (SOP) included in the
 % .github repository.
 %% Clean Slate
-clc, close all, clearvars -except bone_names
+clc, close all, clearvars -except bone_names joint_names joint
 delete(gcp('nocreate'))
 pool = parpool([1 100]);
 clc
@@ -75,7 +75,8 @@ for m = 1:length(pulled_files)
             temp_dot = split(temp_under(end),'.');
             temp = [temp_under(1:end-1); temp_dot];
             for d = 1:length(temp)
-                temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                % temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                temp_check = any(string(bone_names(b)) == string(temp(d)));
                 if  temp_check == 1
                     temp_stl = [];
                     temp_stl = stlread(S(c).name);
@@ -93,10 +94,10 @@ for m = 1:length(pulled_files)
                 % steps. The .ply files from ShapeWorks have a
                 % different mesh than the input .stl files.
                 side_check = strsplit(string(temp(d)),'.');
-                if isempty(strfind('Right',side_check(1))) == 0 || isempty(strfind('right',side_check(1))) == 0 || isempty(strfind('R',side_check(1))) == 0
+                if isempty(any('Right' == side_check(1))) == 0 || isempty(any('right' == side_check(1))) == 0 || isempty(any('R' == side_check(1))) == 0
                     Data.(string(pulled_files(m))).Side = 'Right';
                 end
-                if isempty(strfind('Left',side_check(1))) == 0  || isempty(strfind('left',side_check(1))) == 0 || isempty(strfind('L',side_check(1))) == 0
+                if isempty(any('Left' == side_check(1))) == 0  || isempty(any('left' == side_check(1))) == 0 || isempty(any('L' == side_check(1))) == 0
                     Data.(string(pulled_files(m))).Side = 'Left';
                 end
             end
@@ -121,7 +122,8 @@ for m = 1:length(pulled_files)
             temp_dot = split(temp_under(end),'.');
             temp = [temp_under(1:end-1); temp_dot];
             for d = 1:length(temp)
-                temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                % temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                temp_check = any(string(bone_names(b)) == string(temp(d)));
                 if  temp_check == 1
                     temp_VTK = [];
                     temp_VTK = LoadDataFile(P(c).name);
@@ -135,13 +137,13 @@ for m = 1:length(pulled_files)
     C = [];
     C = dir(fullfile(sprintf('%s\\%s\\',string(fldr_name),string(pulled_files(m))),'*.particles'));
     for b = 1:length(bone_names)
-        %     for b = 2
         for c = 1:length(C)
             temp_under = split(C(c).name,'_');
             temp_dot = split(temp_under(end),'.');
             temp = [temp_under(1:end-1); temp_dot];
             for d = 1:length(temp)
-                temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                % temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                temp_check = any(string(bone_names(b)) == string(temp(d)));
                 if  temp_check == 1
                     temp_cp = [];
                     temp_cp = importdata(C(c).name);
@@ -194,14 +196,14 @@ for subj_count = 1:length(g)
             P = (R*p + repmat(T,1,length(p)))';
 
             % Troubleshooting check for proper alignment
-            %             figure()
-            %             plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
-            %             %  hold on
-            %             % plot3(p(1,:),p(2,:),p(3,:),'ob')
-            %             hold on
-            %             plot3(P(:,1),P(:,2),P(:,3),'*r')
-            %             hold on
-            %             axis equal
+%                         figure()
+%                         plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
+%                         %  hold on
+%                         % plot3(p(1,:),p(2,:),p(3,:),'ob')
+%                         hold on
+%                         plot3(P(:,1),P(:,2),P(:,3),'*r')
+%                         hold on
+%                         axis equal
 
             %% Identify Nodes and CP
             % Find the .stl nodes and their respective correspondence
@@ -399,24 +401,24 @@ for subj_count = 1:length(g)
     % the line between the 'identified nodes' and their paired opposing surface
     % nodes with a green line.
 
-    % A = temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points,:);
-    % B = temp_STL.(string(bone_names(bone_no_CP))).Points;
-    % C = temp_STL.(string(bone_names(bone_with_CP))).Points;
-    %
-    % figure()
-    % plot3(A(:,1),A(:,2),A(:,3),'.k')
-    % hold on
-    % plot3(B(:,1),B(:,2),B(:,3),'.b')
-    % hold on
-    % % plot3(C(ROI_frame,1),C(ROI_frame,2),C(ROI_frame,3),'sr') % ROI is from line 324
-    % hold on
-    % for q = 1:length(i_surf(:,1))
-    %     plot3([C(i_surf(q,2),1);B(i_surf(q,3),1)],[C(i_surf(q,2),2);B(i_surf(q,3),2)],[C(i_surf(q,2),3);B(i_surf(q,3),3)],'g')
-    %     hold on
-    % end
-    % % hold on
-    % axis equal
-    % axis off
+%     A = temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points,:);
+%     B = temp_STL.(string(bone_names(bone_no_CP))).Points;
+%     C = temp_STL.(string(bone_names(bone_with_CP))).Points;
+%     
+%     figure()
+%     plot3(A(:,1),A(:,2),A(:,3),'.k')
+%     hold on
+%     plot3(B(:,1),B(:,2),B(:,3),'.b')
+%     hold on
+%     % plot3(C(ROI_frame,1),C(ROI_frame,2),C(ROI_frame,3),'sr') % ROI is from line 324
+%     hold on
+%     for q = 1:length(i_surf(:,1))
+%         plot3([C(i_surf(q,2),1);B(i_surf(q,3),1)],[C(i_surf(q,2),2);B(i_surf(q,3),2)],[C(i_surf(q,2),3);B(i_surf(q,3),3)],'g')
+%         hold on
+%     end
+%     % hold on
+%     axis equal
+%     axis off
 
     %% Pull Mean and Gaussian Curvature Data
     % These next few sections calculate the congruence index between each
@@ -478,7 +480,7 @@ for subj_count = 1:length(g)
     Data.(string(subjects(subj_count))).MeasureData = i_surf;
 
     %%
-    clearvars -except subjects bone_names Data subj_count frame_count g subj_group pool fldr_name joint_names joint bone_with_CP bone_no_CP
+    clearvars -except subjects bone_names Data subj_count frame_count g subj_group pool fldr_name joint_names joint bone_with_CP bone_no_CP joint
 
 end
 
