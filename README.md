@@ -20,6 +20,11 @@ This toolbox allows the user to calculate joint coverage, distance and congruenc
 * Change the "bone_names" variable to your two bone names
 * Organize your folder with your models as described under the "Folder Architecture" heading
 
+### File requirements
+
+* When running the SSM, ensure that your models are all centered at (0,0,0) for this analysis
+* Ensure that you are using the original stls instead of the stls after you flipped and aligned for SSM. For example, if you have rights and lefts in your model and you originally flipped all the rights to be lefts, do not use those stls for this analysis, use the original right bones.
+
 ## Authors
 
 * Andrew Peterson ([acpeterson96](https://github.com/acpeterson96), andrew.c.peterson@utah.edu)
