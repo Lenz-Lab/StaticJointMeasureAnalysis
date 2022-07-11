@@ -10,9 +10,9 @@
 % This script requires a folder structure and files in order to process the
 % data appropriately.
 
-joint_names = {'Navicular_Medial_Cuneiform'};
+joint_names = {'Navicular_Intermediate_Cuneiform'};
 joint = 1;
-bone_names = {'Navicular','Medial_Cuneiform'};
+bone_names = {'Navicular','Intermediate'};
 % Please update bone_names and joint_names variable with the names of the bones and joint of
 % interest. Spelling is very important and must be consistent in all file
 % names!
@@ -75,7 +75,8 @@ for m = 1:length(pulled_files)
             temp_dot = split(temp_under(end),'.');
             temp = [temp_under(1:end-1); temp_dot];
             for d = 1:length(temp)
-                temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                % temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                temp_check = any(string(bone_names(b)) == string(temp(d)));
                 if  temp_check == 1
                     temp_stl = [];
                     temp_stl = stlread(S(c).name);
@@ -93,10 +94,10 @@ for m = 1:length(pulled_files)
                 % steps. The .ply files from ShapeWorks have a
                 % different mesh than the input .stl files.
                 side_check = strsplit(string(temp(d)),'.');
-                if isempty(strfind('Right',side_check(1))) == 0 || isempty(strfind('right',side_check(1))) == 0 || isempty(strfind('R',side_check(1))) == 0
+                if isempty(any('Right' == side_check(1))) == 0 || isempty(any('right' == side_check(1))) == 0 || isempty(any('R' == side_check(1))) == 0
                     Data.(string(pulled_files(m))).Side = 'Right';
                 end
-                if isempty(strfind('Left',side_check(1))) == 0  || isempty(strfind('left',side_check(1))) == 0 || isempty(strfind('L',side_check(1))) == 0
+                if isempty(any('Left' == side_check(1))) == 0  || isempty(any('left' == side_check(1))) == 0 || isempty(any('L' == side_check(1))) == 0
                     Data.(string(pulled_files(m))).Side = 'Left';
                 end
             end
@@ -121,7 +122,8 @@ for m = 1:length(pulled_files)
             temp_dot = split(temp_under(end),'.');
             temp = [temp_under(1:end-1); temp_dot];
             for d = 1:length(temp)
-                temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                % temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                temp_check = any(string(bone_names(b)) == string(temp(d)));
                 if  temp_check == 1
                     temp_VTK = [];
                     temp_VTK = LoadDataFile(P(c).name);
@@ -135,13 +137,13 @@ for m = 1:length(pulled_files)
     C = [];
     C = dir(fullfile(sprintf('%s\\%s\\',string(fldr_name),string(pulled_files(m))),'*.particles'));
     for b = 1:length(bone_names)
-        %     for b = 2
         for c = 1:length(C)
             temp_under = split(C(c).name,'_');
             temp_dot = split(temp_under(end),'.');
             temp = [temp_under(1:end-1); temp_dot];
             for d = 1:length(temp)
-                temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                % temp_check = strfind(string(bone_names(b)),string(temp(d)));
+                temp_check = any(string(bone_names(b)) == string(temp(d)));
                 if  temp_check == 1
                     temp_cp = [];
                     temp_cp = importdata(C(c).name);
