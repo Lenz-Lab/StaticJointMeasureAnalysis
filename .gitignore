@@ -179,13 +179,12 @@ octave-workspace
 .cache/
 
 # 3D Objects
-*.stl
 *.ply
-*.vtk
 *.obj
 
 # Distance transforms
 *.nrrd
 
-# ShapeWorks
-*.particles
+# Matlab
+*.asv
+
