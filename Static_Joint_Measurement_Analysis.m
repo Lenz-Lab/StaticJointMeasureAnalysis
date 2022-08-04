@@ -10,9 +10,9 @@
 % This script requires a folder structure and files in order to process the
 % data appropriately.
 
-joint_names = {'Navicular_Intermediate_Cuneiform'};
+joint_names = {'Medial_Intermediate_Cuneiform'};
 joint = 1;
-bone_names = {'Navicular','Intermediate'};
+bone_names = {'Medial','Intermediate'};
 % Please update bone_names and joint_names variable with the names of the bones and joint of
 % interest. Spelling is very important and must be consistent in all file
 % names!
@@ -164,7 +164,7 @@ for subj_count = 1:length(g)
     for bone_count = 1:length(bone_names)
         if isfield(Data.(string(subjects(subj_count))).(string(bone_names(bone_count))),'CP') == 1
             i_pair = [];
-            tol = 2;
+            tol = 10;
             CP = [];
             CP = Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).CP;
             q = [];
@@ -194,16 +194,21 @@ for subj_count = 1:length(g)
 
             P = [];
             P = (R*p + repmat(T,1,length(p)))';
+            q = q';
 
             % Troubleshooting check for proper alignment
-%                         figure()
-%                         plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
-%                         %  hold on
-%                         % plot3(p(1,:),p(2,:),p(3,:),'ob')
-%                         hold on
-%                         plot3(P(:,1),P(:,2),P(:,3),'*r')
-%                         hold on
-%                         axis equal
+                        figure()
+                        plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
+                         hold on
+                        plot3(p(1,:),p(2,:),p(3,:),'ob')
+                        hold on
+                        plot3(P(:,1),P(:,2),P(:,3),'*r')
+                        hold on
+                         plot3(q(:,1),q(:,2),q(:,3),'g.')
+                        axis equal
+                        xlabel('x')
+                        ylabel('y')
+                        zlabel('z')
 
             %% Identify Nodes and CP
             % Find the .stl nodes and their respective correspondence
