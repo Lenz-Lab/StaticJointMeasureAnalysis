@@ -34,7 +34,7 @@ bone_names = {'Talus','Calcaneus'};
 %             (Bone_Name_01).stl            (input bone model into ShapeWorks)
 %             (Bone_Name_02).stl            ('opposing' bone model)
 
-% Please read the standard operating procedure (SOP) included in the
+% Please read the README included in the
 % .github repository.
 %% Clean Slate
 clc, close all, clearvars -except bone_names joint_names joint
