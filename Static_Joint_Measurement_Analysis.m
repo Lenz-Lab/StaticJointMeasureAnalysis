@@ -10,9 +10,9 @@
 % This script requires a folder structure and files in order to process the
 % data appropriately.
 
-joint_names = {'Medial_Intermediate_Cuneiform'};
+joint_names = {'Subtalar'};
 joint = 1;
-bone_names = {'Medial','Intermediate'};
+bone_names = {'Talus','Calcaneus'};
 % Please update bone_names and joint_names variable with the names of the bones and joint of
 % interest. Spelling is very important and must be consistent in all file
 % names!
