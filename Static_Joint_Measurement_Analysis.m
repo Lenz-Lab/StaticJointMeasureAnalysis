@@ -10,9 +10,9 @@
 % This script requires a folder structure and files in order to process the
 % data appropriately.
 
-joint_names = {'Navicular Lateral Cuneiform'};
+joint_names = {'Medial Intermediate Cuneiform'};
 joint = 1;
-bone_names = {'Navicular','Lateral'};
+bone_names = {'Medial','Intermediate'};
 % Please update bone_names and joint_names variable with the names of the bones and joint of
 % interest. Spelling is very important and must be consistent in all file
 % names!
@@ -197,14 +197,14 @@ for subj_count = 1:length(g)
             P = (R*p + repmat(T,1,length(p)))';
 
             % Troubleshooting check for proper alignment
-%                         figure()
-%                         plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
-%                          hold on
-%                         plot3(p(1,:),p(2,:),p(3,:),'ob')
-%                         hold on
-%                         plot3(P(:,1),P(:,2),P(:,3),'*r')
-%                         hold on
-%                         axis equal
+                        figure()
+                        plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
+                         hold on
+                        plot3(p(1,:),p(2,:),p(3,:),'ob')
+                        hold on
+                        plot3(P(:,1),P(:,2),P(:,3),'*r')
+                        hold on
+                        axis equal
 
             %% Identify Nodes and CP
             % Find the .stl nodes and their respective correspondence
@@ -219,13 +219,13 @@ for subj_count = 1:length(g)
             Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).CP_Bone = i_pair;
 
             % Troubleshooting check for proper pairing
-%                         c = 1000;
-%                         figure()
-%                         plot3(CP(i_pair(:,1),1),CP(i_pair(:,1),2),CP(i_pair(:,1),3),'.k')
-%                         hold on
-%                         plot3(CP(i_pair(c,1),1),CP(i_pair(c,1),2),CP(i_pair(c,1),3),'*r')
-%                         hold on
-%                         axis equal
+                        c = 1;
+                        figure()
+                        plot3(CP(i_pair(:,1),1),CP(i_pair(:,1),2),CP(i_pair(:,1),3),'.k')
+                        hold on
+                        plot3(CP(i_pair(c,1),1),CP(i_pair(c,1),2),CP(i_pair(c,1),3),'*r')
+                        hold on
+                        axis equal
         end
     end
 end
@@ -506,6 +506,9 @@ end
 % each correspondence particle and node, and the coverage area (mm^2) on
 % each bone. Each subject is given their own sheet.
 % A .mat file is also generated with similar information.
+joint_names = {'Medial Intermediate Cuneiform'};
+joint = 1;
+bone_names = {'Medial','Intermediate'};
 for n = 1:subj_count
     xlfilename = string(strcat(fldr_name,'\Joint_Measurements_',joint_names(joint),'.xlsx'));
     writematrix(string(joint_names(joint)),xlfilename,'Sheet',string(subjects(n)),'Range','A1');
