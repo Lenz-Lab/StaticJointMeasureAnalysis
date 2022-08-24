@@ -197,18 +197,18 @@ for subj_count = 1:length(g)
             q = q';
 
             % Troubleshooting check for proper alignment
-                        figure()
-                        plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
-                         hold on
-                        plot3(p(1,:),p(2,:),p(3,:),'ob')
-                        hold on
-                        plot3(P(:,1),P(:,2),P(:,3),'*r')
-                        hold on
-                         plot3(q(:,1),q(:,2),q(:,3),'g.')
-                        axis equal
-                        xlabel('x')
-                        ylabel('y')
-                        zlabel('z')
+%                         figure()
+%                         plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
+%                          hold on
+%                         plot3(p(1,:),p(2,:),p(3,:),'ob')
+%                         hold on
+%                         plot3(P(:,1),P(:,2),P(:,3),'*r')
+%                         hold on
+%                          plot3(q(:,1),q(:,2),q(:,3),'g.')
+%                         axis equal
+%                         xlabel('x')
+%                         ylabel('y')
+%                         zlabel('z')
 
             %% Identify Nodes and CP
             % Find the .stl nodes and their respective correspondence
@@ -348,7 +348,7 @@ for subj_count = 1:length(g)
             % TriangleRayIntersection (orig, dir, vert0, vert1, vert2, varargin)
 
             parfor (norm_check = 1:length(temp_center),pool)
-                [temp_int] = TriangleRayIntersection(temp_center(norm_check,:),temp_normal(norm_check,:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,1),:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,2),:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,3),:));
+                [temp_int] = TriangleRayIntersection(temp_center(norm_check,:),temp_normal(norm_check,:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,1),:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,2),:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,3),:),'planeType','one sided');
                 if isempty(find(temp_int == 1)) == 0
                     temp_n(norm_check,:) = 1;
                 end
