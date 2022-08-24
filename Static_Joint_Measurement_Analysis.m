@@ -38,7 +38,7 @@ bone_names = {'Medial','Intermediate'};
 % Please read the standard operating procedure (SOP) included in the
 % .github repository.
 %% Clean Slate
-clc, close all, clearvars -except bone_names
+clc, close all, clearvars -except bone_names joint joint_names
 delete(gcp('nocreate'))
 pool = parpool([1 100]);
 clc
@@ -197,14 +197,14 @@ for subj_count = 1:length(g)
             P = (R*p + repmat(T,1,length(p)))';
 
             % Troubleshooting check for proper alignment
-                        figure()
-                        plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
-                         hold on
-                        plot3(p(1,:),p(2,:),p(3,:),'ob')
-                        hold on
-                        plot3(P(:,1),P(:,2),P(:,3),'*r')
-                        hold on
-                        axis equal
+%                         figure()
+%                         plot3(CP(:,1),CP(:,2),CP(:,3),'.k')
+%                          hold on
+%                         plot3(p(1,:),p(2,:),p(3,:),'ob')
+%                         hold on
+%                         plot3(P(:,1),P(:,2),P(:,3),'*r')
+%                         hold on
+%                         axis equal
 
             %% Identify Nodes and CP
             % Find the .stl nodes and their respective correspondence
@@ -219,13 +219,13 @@ for subj_count = 1:length(g)
             Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).CP_Bone = i_pair;
 
             % Troubleshooting check for proper pairing
-                        c = 1;
-                        figure()
-                        plot3(CP(i_pair(:,1),1),CP(i_pair(:,1),2),CP(i_pair(:,1),3),'.k')
-                        hold on
-                        plot3(CP(i_pair(c,1),1),CP(i_pair(c,1),2),CP(i_pair(c,1),3),'*r')
-                        hold on
-                        axis equal
+%                         c = 1;
+%                         figure()
+%                         plot3(CP(i_pair(:,1),1),CP(i_pair(:,1),2),CP(i_pair(:,1),3),'.k')
+%                         hold on
+%                         plot3(CP(i_pair(c,1),1),CP(i_pair(c,1),2),CP(i_pair(c,1),3),'*r')
+%                         hold on
+%                         axis equal
         end
     end
 end
@@ -274,7 +274,7 @@ for subj_count = 1:length(g)
             % TriangleRayIntersection (orig, dir, vert0, vert1, vert2, varargin)
 
             parfor (norm_check = 1:length(temp_center),pool)
-                [temp_int] = TriangleRayIntersection(temp_center(norm_check,:),temp_normal(norm_check,:),temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,1),:),temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,2),:),temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,3),:));
+                [temp_int] = TriangleRayIntersection(temp_center(norm_check,:),temp_normal(norm_check,:),temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,1),:),temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,2),:),temp_STL.(string(bone_names(bone_no_CP))).Points(temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(:,3),:),'PlaneType','one sided');
                 if isempty(find(temp_int == 1)) == 0
                     temp_n(norm_check,:) = 1;
                 end
@@ -381,7 +381,7 @@ for subj_count = 1:length(g)
 
     %% Calculate Distance and Congruence Index
     k = 1;
-    tol = 5;
+    tol = 6;
 
     A_A = temp_STL.(string(bone_names(bone_no_CP))).Points;
     C_C = temp_STL.(string(bone_names(bone_with_CP))).Points;
@@ -418,29 +418,37 @@ for subj_count = 1:length(g)
     % the line between the 'identified nodes' and their paired opposing surface
     % nodes with a green line.
 
-    % A = temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points,:);
-    % B = temp_STL.(string(bone_names(bone_no_CP))).Points;
-    % C = temp_STL.(string(bone_names(bone_with_CP))).Points;
-    %
-    % figure()
-    % plot3(A(:,1),A(:,2),A(:,3),'.k')
-    % hold on
-    % plot3(B(:,1),B(:,2),B(:,3),'.b')
-    % hold on
-    % % plot3(C(ROI_frame,1),C(ROI_frame,2),C(ROI_frame,3),'sr') % ROI is from line 324
-    % hold on
-    % for q = 1:length(i_surf(:,1))
-    %     plot3([C(i_surf(q,2),1);B(i_surf(q,3),1)],[C(i_surf(q,2),2);B(i_surf(q,3),2)],[C(i_surf(q,2),3);B(i_surf(q,3),3)],'g')
-    %     hold on
-    % end
-    % % hold on
-    % axis equal
-    % axis off
+%     A = temp_STL.(string(bone_names(bone_with_CP))).Points(tri_points,:);
+%     B = temp_STL.(string(bone_names(bone_no_CP))).Points;
+%     C = temp_STL.(string(bone_names(bone_with_CP))).Points;
+%     
+%     figure()
+%     plot3(A(:,1),A(:,2),A(:,3),'.k')
+%     hold on
+%     plot3(B(:,1),B(:,2),B(:,3),'.b')
+%     hold on
+%     % plot3(C(ROI_frame,1),C(ROI_frame,2),C(ROI_frame,3),'sr') % ROI is from line 324
+%     hold on
+%     for q = 1:length(i_surf(:,1))
+%         plot3([C(i_surf(q,2),1);B(i_surf(q,3),1)],[C(i_surf(q,2),2);B(i_surf(q,3),2)],[C(i_surf(q,2),3);B(i_surf(q,3),3)],'g')
+%         hold on
+%     end
+%     % hold on
+%     axis equal
+%     axis off
 
     %% Pull Mean and Gaussian Curvature Data
     % These next few sections calculate the congruence index between each
     % of the paired nodes following the methods described by Ateshian et. al.
     % (CITE)
+    for p = 1:length(i_surf(:,1))
+        if i_surf(p,1) > length(Data.(string(subjects(subj_count))).(string(bone_names(bone_no_CP))).MeanCurve)
+            i_surf(p,:) = [];
+        else
+            i_surf(p,:) = i_surf(p,:);
+        end
+    end
+
     mean1 = Data.(string(subjects(subj_count))).(string(bone_names(bone_no_CP))).MeanCurve(i_surf(:,1));
     gaus1 = Data.(string(subjects(subj_count))).(string(bone_names(bone_no_CP))).GaussianCurve(i_surf(:,1));
 
@@ -506,9 +514,7 @@ end
 % each correspondence particle and node, and the coverage area (mm^2) on
 % each bone. Each subject is given their own sheet.
 % A .mat file is also generated with similar information.
-joint_names = {'Medial Intermediate Cuneiform'};
-joint = 1;
-bone_names = {'Medial','Intermediate'};
+
 for n = 1:subj_count
     xlfilename = string(strcat(fldr_name,'\Joint_Measurements_',joint_names(joint),'.xlsx'));
     writematrix(string(joint_names(joint)),xlfilename,'Sheet',string(subjects(n)),'Range','A1');
