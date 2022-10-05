@@ -304,19 +304,61 @@ for subj_count = 1:length(g)
             end
 
             %% Calculate Coverage Surface Area
+            k = 1;
             for n = 1:length(temp_n)
-                temp_tri = temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(temp_n(n),:);
-                P1 = temp_STL.(string(bone_names(bone_with_CP))).Points(temp_tri(:,1),:);
-                P2 = temp_STL.(string(bone_names(bone_with_CP))).Points(temp_tri(:,2),:);
-                P3 = temp_STL.(string(bone_names(bone_with_CP))).Points(temp_tri(:,3),:);
+                temp_tri(n,:) = temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(temp_n(n),:);
+                P1 = temp_STL.(string(bone_names(bone_with_CP))).Points(temp_tri(n,1),:);
+                P2 = temp_STL.(string(bone_names(bone_with_CP))).Points(temp_tri(n,2),:);
+                P3 = temp_STL.(string(bone_names(bone_with_CP))).Points(temp_tri(n,3),:);
+                temp_vert_xyz(k:k+2,:) = [temp_tri(n,1) P1; temp_tri(n,2) P2; temp_tri(n,3) P3];
+                k = k + 3;
                 a = P2 - P1;
                 b = P3 - P1;
                 c = cross(a,b,2);
                 area_tri(n,:) = 1/2*sum(sqrt(sum(c.^2,2)));
-                clear temp_tri
+                %                 clear temp_tri
             end
+            clear temp_n P1 P2 P3
+            
+            % Calculate verticies and points within coverage region
+            for n = 1:length(temp_vert_xyz)
+                temp_vert = temp_vert_xyz(n,1);
+                temp_xyz(temp_vert,:) = temp_vert_xyz(n,2:4);
+            end
+            clear temp_vert_xyz
+
+            % Create surface of covered region for plotting
+            TR_temp = triangulation(temp_tri,temp_xyz);
+
+%             % Plot coverage 
+%             figure()
+%             patch('Faces',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).ConnectivityList,...
+%                 'Vertices',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).Points,...
+%                 'FaceColor', [0.85 0.85 0.85], ...
+%                 'EdgeColor','none',...
+%                 'FaceLighting','gouraud',...
+%                 'AmbientStrength', 0.15);
+%             material('dull');
+%             view([180 -70])
+%             camlight headlight
+%             grid off
+%             axis off
+%             axis equal
+%             hold on
+%             patch('Faces',TR_temp.ConnectivityList,'Vertices',TR_temp.Points,...
+%                 'FaceColor', [1 0 0], ...
+%                 'EdgeColor','none',...
+%                 'FaceLighting','gouraud',...
+%                 'AmbientStrength', 0.15);
+%             material('dull');
+%             grid off
+%             axis off
+%             axis equal
+%             hold off
 
             Data.(string(subjects(subj_count))).CoverageArea.(string(bone_names(bone_with_CP))) = sum(area_tri);
+            Data.(string(subjects(subj_count))).CoverageAreaSurf.(string(bone_names(bone_with_CP))) = TR_temp;
+            clear TR_temp area_tri temp_tri
 
             % Troubleshooting
             % TR.vertices =    temp_STL.(string(bone_names(bone_with_CP))).Points;
@@ -338,6 +380,7 @@ for subj_count = 1:length(g)
 
         else
             %% Calculate Coverage Surface Area on Opposing Bone
+            clear temp_center temp_normal
             temp_center = incenter(temp_STL.(string(bone_names(bone_no_CP))));
             temp_normal = faceNormal(temp_STL.(string(bone_names(bone_no_CP))));
 
@@ -347,8 +390,9 @@ for subj_count = 1:length(g)
             % https://www.mathworks.com/help/matlab/ref/triangulation.facenormal.html
             % TriangleRayIntersection (orig, dir, vert0, vert1, vert2, varargin)
 
+            clear norm_check temp_int temp_n
             parfor (norm_check = 1:length(temp_center),pool)
-                [temp_int] = TriangleRayIntersection(temp_center(norm_check,:),temp_normal(norm_check,:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,1),:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,2),:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,3),:),'planeType','one sided');
+                [temp_int] = TriangleRayIntersection(temp_center(norm_check,:),temp_normal(norm_check,:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,1),:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,2),:),temp_STL.(string(bone_names(bone_with_CP))).Points(temp_STL.(string(bone_names(bone_with_CP))).ConnectivityList(:,3),:));
                 if isempty(find(temp_int == 1)) == 0
                     temp_n(norm_check,:) = 1;
                 end
@@ -357,19 +401,61 @@ for subj_count = 1:length(g)
             temp_n = find(temp_n == 1);
             pool.IdleTimeout = 30; % resets pool timeout to 30 minutes
 
+            clear temp_tri P1 P2 P3 temp_vert_xyz area_tri
+            k = 1;
             for n = 1:length(temp_n)
-                temp_tri = temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(temp_n(n),:);
-                P1 = temp_STL.(string(bone_names(bone_no_CP))).Points(temp_tri(:,1),:);
-                P2 = temp_STL.(string(bone_names(bone_no_CP))).Points(temp_tri(:,2),:);
-                P3 = temp_STL.(string(bone_names(bone_no_CP))).Points(temp_tri(:,3),:);
+                temp_tri(n,:) = temp_STL.(string(bone_names(bone_no_CP))).ConnectivityList(temp_n(n),:);
+                P1 = temp_STL.(string(bone_names(bone_no_CP))).Points(temp_tri(n,1),:);
+                P2 = temp_STL.(string(bone_names(bone_no_CP))).Points(temp_tri(n,2),:);
+                P3 = temp_STL.(string(bone_names(bone_no_CP))).Points(temp_tri(n,3),:);
+                temp_vert_xyz(k:k+2,:) = [temp_tri(n,1) P1; temp_tri(n,2) P2; temp_tri(n,3) P3];
+                k = k + 3;
                 a = P2 - P1;
                 b = P3 - P1;
                 c = cross(a,b,2);
                 area_tri(n,:) = 1/2*sum(sqrt(sum(c.^2,2)));
-                clear temp_tri
+                %                 clear temp_tri
             end
 
+            % Calculate verticies and points within coverage region
+            clear temp_vert temp_xyz
+            for n = 1:length(temp_vert_xyz)
+                temp_vert = temp_vert_xyz(n,1);
+                temp_xyz(temp_vert,:) = temp_vert_xyz(n,2:4);
+            end
+            
+            % Create surface of covered region for plotting
+            TR_temp = triangulation(temp_tri,temp_xyz);
+
+%             % Plot coverage 
+%             figure()
+%             patch('Faces',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).ConnectivityList,...
+%                 'Vertices',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).Points,...
+%                 'FaceColor', [0.85 0.85 0.85], ...
+%                 'EdgeColor','none',...
+%                 'FaceLighting','gouraud',...
+%                 'AmbientStrength', 0.15);
+%             material('dull');
+%             view([10,75])
+%             camlight headlight
+%             grid off
+%             axis off
+%             axis equal
+%             hold on
+%             patch('Faces',TR_temp.ConnectivityList,'Vertices',TR_temp.Points,...
+%                 'FaceColor', [1 0 0], ...
+%                 'EdgeColor','none',...
+%                 'FaceLighting','gouraud',...
+%                 'AmbientStrength', 0.15);
+%             material('dull');
+%             grid off
+%             axis off
+%             axis equal
+%             hold on
+
             Data.(string(subjects(subj_count))).CoverageArea.(string(bone_names(bone_no_CP))) = sum(area_tri);
+            Data.(string(subjects(subj_count))).CoverageAreaSurf.(string(bone_names(bone_no_CP))) = TR_temp;
+            clear TR_temp area_tri
         end
     end
 
