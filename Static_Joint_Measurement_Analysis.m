@@ -320,15 +320,15 @@ for subj_count = 1:length(g)
             end
             clear temp_n P1 P2 P3
             
-            % Calculate verticies and points within coverage region
-            for n = 1:length(temp_vert_xyz)
-                temp_vert = temp_vert_xyz(n,1);
-                temp_xyz(temp_vert,:) = temp_vert_xyz(n,2:4);
-            end
-            clear temp_vert_xyz
-
-            % Create surface of covered region for plotting
-            TR_temp = triangulation(temp_tri,temp_xyz);
+%             % Calculate verticies and points within coverage region
+%             for n = 1:length(temp_vert_xyz)
+%                 temp_vert = temp_vert_xyz(n,1);
+%                 temp_xyz(temp_vert,:) = temp_vert_xyz(n,2:4);
+%             end
+%             clear temp_vert_xyz
+% 
+%             % Create surface of covered region for plotting
+%             TR_temp = triangulation(temp_tri,temp_xyz);
 
 %             % Plot coverage 
 %             figure()
@@ -357,8 +357,9 @@ for subj_count = 1:length(g)
 %             hold off
 
             Data.(string(subjects(subj_count))).CoverageArea.(string(bone_names(bone_with_CP))) = sum(area_tri);
-            Data.(string(subjects(subj_count))).CoverageAreaSurf.(string(bone_names(bone_with_CP))) = TR_temp;
-            clear TR_temp area_tri temp_tri
+%             Data.(string(subjects(subj_count))).CoverageAreaSurf.(string(bone_names(bone_with_CP))) = TR_temp;
+%             clear TR_temp area_tri temp_tri
+            clear area_tri temp_tri
 
             % Troubleshooting
             % TR.vertices =    temp_STL.(string(bone_names(bone_with_CP))).Points;
@@ -417,15 +418,15 @@ for subj_count = 1:length(g)
                 %                 clear temp_tri
             end
 
-            % Calculate verticies and points within coverage region
-            clear temp_vert temp_xyz
-            for n = 1:length(temp_vert_xyz)
-                temp_vert = temp_vert_xyz(n,1);
-                temp_xyz(temp_vert,:) = temp_vert_xyz(n,2:4);
-            end
-            
-            % Create surface of covered region for plotting
-            TR_temp = triangulation(temp_tri,temp_xyz);
+%             % Calculate verticies and points within coverage region
+%             clear temp_vert temp_xyz
+%             for n = 1:length(temp_vert_xyz)
+%                 temp_vert = temp_vert_xyz(n,1);
+%                 temp_xyz(temp_vert,:) = temp_vert_xyz(n,2:4);
+%             end
+%             
+%             % Create surface of covered region for plotting
+%             TR_temp = triangulation(temp_tri,temp_xyz);
 
 %             % Plot coverage 
 %             figure()
@@ -454,8 +455,9 @@ for subj_count = 1:length(g)
 %             hold on
 
             Data.(string(subjects(subj_count))).CoverageArea.(string(bone_names(bone_no_CP))) = sum(area_tri);
-            Data.(string(subjects(subj_count))).CoverageAreaSurf.(string(bone_names(bone_no_CP))) = TR_temp;
-            clear TR_temp area_tri
+%             Data.(string(subjects(subj_count))).CoverageAreaSurf.(string(bone_names(bone_no_CP))) = TR_temp;
+%             clear TR_temp area_tri
+            clear area_tri
         end
     end
 
