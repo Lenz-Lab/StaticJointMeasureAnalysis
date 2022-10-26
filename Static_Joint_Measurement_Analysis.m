@@ -236,6 +236,7 @@ end
 
 %% Bone Transformations
 for subj_count = 1:length(g)
+
     frame_count = 1;
     clear temp i_pair temp_STL
     for bone_count = 1:length(bone_names)
@@ -572,10 +573,22 @@ for subj_count = 1:length(g)
     % i_surf(:,4) == euclidean distance from the .stl coordinate to the opposing bone surface
     Data.(string(subjects(subj_count))).MeasureData = i_surf;
 
+    %% Plotting
+    Bone.Points = Data.(string(subjects(subj_count))).(bone_names{bone_with_CP}).(bone_names{bone_with_CP}).Points;
+    Bone.ConnectivityList = Data.(string(subjects(subj_count))).(bone_names{bone_with_CP}).(bone_names{bone_with_CP}).ConnectivityList;
+
+    NodalIndex = Data.(string(subjects(subj_count))).MeasureData(:,2);
+    AllNodalData = Data.(string(subjects(subj_count))).MeasureData;
+
+    RainbowFish(Bone,NodalIndex,AllNodalData,[0 6],1,[],[180 -70])
+    figure()
+    RainbowFish(Bone,NodalIndex,AllNodalData,[0 1],2,[],[180 -70])
+
     %%
     clearvars -except subjects bone_names Data subj_count frame_count g subj_group pool fldr_name joint_names joint bone_with_CP bone_no_CP joint
 
 end
+
 
 %% Save Data to .xls file
 % An .xlsx file with distance (mm) and congruence index (mm^-1) values at 
