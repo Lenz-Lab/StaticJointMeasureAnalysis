@@ -12,7 +12,7 @@
 
 joint_names = {'Subtalar'};
 joint = 1;
-bone_names = {'Talus','Calcaneus'};
+bone_names = {'Calcaneus','Talus'};
 % Please update bone_names and joint_names variable with the names of the bones and joint of
 % interest. Spelling is very important and must be consistent in all file
 % names!
@@ -320,45 +320,45 @@ for subj_count = 1:length(g)
             end
             clear temp_n P1 P2 P3
             
-%             % Calculate verticies and points within coverage region
-%             for n = 1:length(temp_vert_xyz)
-%                 temp_vert = temp_vert_xyz(n,1);
-%                 temp_xyz(temp_vert,:) = temp_vert_xyz(n,2:4);
-%             end
-%             clear temp_vert_xyz
-% 
-%             % Create surface of covered region for plotting
-%             TR_temp = triangulation(temp_tri,temp_xyz);
+            % Calculate verticies and points within coverage region
+            for n = 1:length(temp_vert_xyz)
+                temp_vert = temp_vert_xyz(n,1);
+                temp_xyz(temp_vert,:) = temp_vert_xyz(n,2:4);
+            end
+            clear temp_vert_xyz
 
-%             % Plot coverage 
-%             figure()
-%             patch('Faces',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).ConnectivityList,...
-%                 'Vertices',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).Points,...
-%                 'FaceColor', [0.85 0.85 0.85], ...
-%                 'EdgeColor','none',...
-%                 'FaceLighting','gouraud',...
-%                 'AmbientStrength', 0.15);
-%             material('dull');
-%             view([180 -70])
-%             camlight headlight
-%             grid off
-%             axis off
-%             axis equal
-%             hold on
-%             patch('Faces',TR_temp.ConnectivityList,'Vertices',TR_temp.Points,...
-%                 'FaceColor', [1 0 0], ...
-%                 'EdgeColor','none',...
-%                 'FaceLighting','gouraud',...
-%                 'AmbientStrength', 0.15);
-%             material('dull');
-%             grid off
-%             axis off
-%             axis equal
-%             hold off
+            % Create surface of covered region for plotting
+            TR_temp = triangulation(temp_tri,temp_xyz);
+
+            % Plot coverage 
+            figure()
+            patch('Faces',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).ConnectivityList,...
+                'Vertices',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).Points,...
+                'FaceColor', [0.85 0.85 0.85], ...
+                'EdgeColor','none',...
+                'FaceLighting','gouraud',...
+                'AmbientStrength', 0.15);
+            material('dull');
+            view([0,80])
+            camlight headlight
+            grid off
+            axis off
+            axis equal
+            hold on
+            patch('Faces',TR_temp.ConnectivityList,'Vertices',TR_temp.Points,...
+                'FaceColor', [1 0 0], ...
+                'EdgeColor','none',...
+                'FaceLighting','gouraud',...
+                'AmbientStrength', 0.15);
+            material('dull');
+            grid off
+            axis off
+            axis equal
+            hold off
 
             Data.(string(subjects(subj_count))).CoverageArea.(string(bone_names(bone_with_CP))) = sum(area_tri);
 %             Data.(string(subjects(subj_count))).CoverageAreaSurf.(string(bone_names(bone_with_CP))) = TR_temp;
-%             clear TR_temp area_tri temp_tri
+            clear TR_temp area_tri temp_tri
             clear area_tri temp_tri
 
             % Troubleshooting
@@ -418,41 +418,41 @@ for subj_count = 1:length(g)
                 %                 clear temp_tri
             end
 
-%             % Calculate verticies and points within coverage region
-%             clear temp_vert temp_xyz
-%             for n = 1:length(temp_vert_xyz)
-%                 temp_vert = temp_vert_xyz(n,1);
-%                 temp_xyz(temp_vert,:) = temp_vert_xyz(n,2:4);
-%             end
-%             
-%             % Create surface of covered region for plotting
-%             TR_temp = triangulation(temp_tri,temp_xyz);
+            % Calculate verticies and points within coverage region
+            clear temp_vert temp_xyz
+            for n = 1:length(temp_vert_xyz)
+                temp_vert = temp_vert_xyz(n,1);
+                temp_xyz(temp_vert,:) = temp_vert_xyz(n,2:4);
+            end
+            
+            % Create surface of covered region for plotting
+            TR_temp = triangulation(temp_tri,temp_xyz);
 
-%             % Plot coverage 
-%             figure()
-%             patch('Faces',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).ConnectivityList,...
-%                 'Vertices',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).Points,...
-%                 'FaceColor', [0.85 0.85 0.85], ...
-%                 'EdgeColor','none',...
-%                 'FaceLighting','gouraud',...
-%                 'AmbientStrength', 0.15);
-%             material('dull');
-%             view([10,75])
-%             camlight headlight
-%             grid off
-%             axis off
-%             axis equal
-%             hold on
-%             patch('Faces',TR_temp.ConnectivityList,'Vertices',TR_temp.Points,...
-%                 'FaceColor', [1 0 0], ...
-%                 'EdgeColor','none',...
-%                 'FaceLighting','gouraud',...
-%                 'AmbientStrength', 0.15);
-%             material('dull');
-%             grid off
-%             axis off
-%             axis equal
-%             hold on
+            % Plot coverage 
+            figure()
+            patch('Faces',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).ConnectivityList,...
+                'Vertices',Data.(string(subjects(subj_count))).(string(bone_names(bone_count))).(string(bone_names(bone_count))).Points,...
+                'FaceColor', [0.85 0.85 0.85], ...
+                'EdgeColor','none',...
+                'FaceLighting','gouraud',...
+                'AmbientStrength', 0.15);
+            material('dull');
+            view([150 -50])
+            camlight headlight
+            grid off
+            axis off
+            axis equal
+            hold on
+            patch('Faces',TR_temp.ConnectivityList,'Vertices',TR_temp.Points,...
+                'FaceColor', [1 0 0], ...
+                'EdgeColor','none',...
+                'FaceLighting','gouraud',...
+                'AmbientStrength', 0.15);
+            material('dull');
+            grid off
+            axis off
+            axis equal
+            hold on
 
             Data.(string(subjects(subj_count))).CoverageArea.(string(bone_names(bone_no_CP))) = sum(area_tri);
 %             Data.(string(subjects(subj_count))).CoverageAreaSurf.(string(bone_names(bone_no_CP))) = TR_temp;
